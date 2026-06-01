@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Marketing Prompt Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --surface3: #22222f;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --accent: #4f7fff;
+    --accent2: #7c5cfc;
+    --accent-glow: rgba(79,127,255,0.18);
+    --text: #f0f0f8;
+    --text2: #9090a8;
+    --text3: #5a5a70;
+    --success: #22c97a;
+    --warning: #f0a030;
+    --danger: #f05050;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-pill: 99px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background mesh */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%;
+    left: -20%;
+    width: 80vw;
+    height: 80vw;
+    background: radial-gradient(circle, rgba(79,127,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(124,92,252,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* Header */
+  .header { text-align: center; padding: 3rem 0 2.5rem; }
+  .header-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--accent); background: rgba(79,127,255,0.1);
+    border: 1px solid rgba(79,127,255,0.25); border-radius: var(--radius-pill);
+    padding: 5px 14px; margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, #8ab0ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+  .header p { color: var(--text2); font-size: 15px; line-height: 1.6; max-width: 520px; margin: 0 auto; }
+
+  /* Stepper */
+  .stepper {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; margin: 2rem 0 2.5rem; flex-wrap: nowrap;
+  }
+  .step-item { display: flex; align-items: center; }
+  .step-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; font-family: 'Syne', sans-serif;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text3);
+    transition: all .3s;
+    flex-shrink: 0;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 16px var(--accent-glow); }
+  .step-dot.done { background: var(--success); border-color: var(--success); color: #fff; }
+  .step-label { font-size: 12px; color: var(--text3); margin-left: 7px; white-space: nowrap; }
+  .step-label.active { color: var(--text); }
+  .step-line { width: 28px; height: 1px; background: var(--border); margin: 0 6px; flex-shrink: 0; }
+
+  /* Cards / Panels */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    animation: fadeUp .35s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Task Grid */
+  .task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .task-card {
+    cursor: pointer;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 15px;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .task-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--accent-glow), transparent);
+    opacity: 0; transition: opacity .2s;
+  }
+  .task-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+  .task-card:hover::before { opacity: 1; }
+  .task-card.selected { border-color: var(--accent); background: rgba(79,127,255,0.08); }
+  .task-card.selected::before { opacity: 1; }
+  .task-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+  .task-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .task-desc { font-size: 11.5px; color: var(--text2); line-height: 1.4; }
+  .task-check {
+    position: absolute; top: 10px; right: 10px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 10px; display: none; align-items: center; justify-content: center;
+  }
+  .task-card.selected .task-check { display: flex; }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 500; color: var(--text2); letter-spacing: .04em; text-transform: uppercase; }
+  input[type="text"], select, textarea {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 13px;
+    outline: none;
+    transition: border-color .2s;
+    width: 100%;
+  }
+  input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder, textarea::placeholder { color: var(--text3); }
+  select option { background: #1a1a24; }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* Pills */
+  .pills { display: flex; flex-wrap: wrap; gap: 7px; }
+  .pill {
+    cursor: pointer;
+    font-size: 12.5px;
+    padding: 6px 13px;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all .15s;
+    user-select: none;
+  }
+  .pill:hover { border-color: var(--border-hover); color: var(--text); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px;
+    padding: 11px 24px; border-radius: var(--radius-sm);
+    cursor: pointer; border: none; transition: all .2s; text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(79,127,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(79,127,255,0.45); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-ghost {
+    background: var(--surface2); color: var(--text2);
+    border: 1.5px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); background: var(--surface3); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 1.25rem; }
+  .btn-row-between { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 1.25rem; }
+
+  /* Badge chips */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11.5px; font-weight: 500;
+    background: rgba(79,127,255,0.1); color: #8ab0ff;
+    border: 1px solid rgba(79,127,255,0.2);
+    border-radius: var(--radius-pill);
+    padding: 3px 10px; margin: 3px 3px 3px 0;
+  }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }
+  .tab {
+    padding: 10px 20px; font-size: 13.5px; font-weight: 500;
+    color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all .2s; margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Prompt output */
+  .prompt-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 380px;
+    overflow-y: auto;
+    color: #c8d0ff;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface3) transparent;
+  }
+
+  /* AI result */
+  .ai-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    font-size: 13.5px;
+    line-height: 1.85;
+    max-height: 460px;
+    overflow-y: auto;
+    color: var(--text);
+    white-space: pre-wrap;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface3) transparent;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--surface3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text2); }
+  .empty-state .big-icon { font-size: 48px; margin-bottom: 14px; }
+  .empty-state p { font-size: 14px; margin-bottom: 1.25rem; }
+
+  /* Select-all row */
+  .task-actions { display: flex; gap: 8px; margin-bottom: 1rem; }
+
+  /* Counter badge */
+  .counter {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 11px; font-weight: 700;
+    margin-left: 6px;
+  }
+
+  /* Section titles inside panel */
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 10px;
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+  /* Error */
+  .error-box {
+    background: rgba(240,80,80,0.08);
+    border: 1px solid rgba(240,80,80,0.25);
+    border-radius: var(--radius-sm);
+    padding: 13px 16px;
+    color: #f08080;
+    font-size: 13px;
+    margin-bottom: 1rem;
+  }
+
+  /* Step hidden */
+  .step-page { display: none; }
+  .step-page.active { display: block; }
+
+  /* Hint text */
+  .hint { font-size: 12px; color: var(--text3); margin-top: 8px; }
+
+  @media (max-width: 480px) {
+    .task-grid { grid-template-columns: 1fr 1fr; }
+    .step-label { display: none; }
+    .step-line { width: 18px; }
+    .panel { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-eyebrow">✦ All-in-One Tool</div>
+    <h1>Digital Marketing<br>Prompt Generator</h1>
+    <p>Generate expert-level prompts for SEO, keywords, captions, hashtags, title tags, meta descriptions, and video scripts — all from one place.</p>
+  </header>
+
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="step-item">
+      <div class="step-dot active" id="dot-1">1</div>
+      <span class="step-label active" id="lbl-1">Select Tasks</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-2">2</div>
+      <span class="step-label" id="lbl-2">Brand Details</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot-3">3</div>
+      <span class="step-label" id="lbl-3">Your Prompt</span>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-page active" id="page-1">
+    <div class="panel">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:1.1rem;">Choose one or more marketing tasks. A combined, structured prompt will be generated for everything you select.</p>
+      <div class="task-actions">
+        <button class="btn btn-ghost" style="font-size:12px;padding:6px 14px;" onclick="selectAll()">Select All</button>
+        <button class="btn btn-ghost" style="font-size:12px;padding:6px 14px;" onclick="clearAll()">Clear</button>
+      </div>
+      <div class="task-grid" id="task-grid"></div>
+      <div class="btn-row-between">
+        <span style="color:var(--text3);font-size:13px;" id="sel-count">0 tasks selected</span>
+        <button class="btn btn-primary" id="btn-step2" onclick="goStep(2)" disabled>Next: Brand Details →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-page" id="page-2">
+    <div class="panel">
+      <div id="chips-row" style="margin-bottom:1.25rem;"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Brand / Product Name *</label>
+          <input type="text" id="f-brand" placeholder="e.g. FitFlow Supplements" oninput="validateStep2()">
+        </div>
+        <div class="form-group">
+          <label>Industry *</label>
+          <select id="f-industry" onchange="validateStep2()">
+            <option value="">Select industry…</option>
+            <option>E-commerce</option><option>SaaS / Tech</option>
+            <option>Health &amp; Wellness</option><option>Finance</option>
+            <option>Education</option><option>Real Estate</option>
+            <option>Food &amp; Beverage</option><option>Fashion &amp; Lifestyle</option>
+            <option>Travel</option><option>B2B Services</option>
+            <option>Non-profit</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Target Audience *</label>
+          <input type="text" id="f-audience" placeholder="e.g. Fitness enthusiasts aged 25–40 looking to build muscle" oninput="validateStep2()">
+        </div>
+        <div class="form-group full">
+          <label>Primary Goal / Focus Keyword *</label>
+          <input type="text" id="f-goal" placeholder="e.g. Increase product sales, rank for 'whey protein India'" oninput="validateStep2()">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-title">Platforms * (select all that apply)</div>
+      <div class="pills" id="platforms-pills"></div>
+
+      <div class="divider"></div>
+      <div class="section-title">Content Tone *</div>
+      <div class="pills" id="tone-pills"></div>
+
+      <div class="btn-row-between" style="margin-top:1.5rem;">
+        <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-primary" id="btn-step3" onclick="generateAndGoStep3()" disabled>Generate Prompt ✦</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-page" id="page-3">
+    <div class="panel">
+      <div id="result-chips" style="margin-bottom:1.1rem;"></div>
+
+      <div class="tabs">
+        <div class="tab active" id="tab-prompt" onclick="switchTab('prompt')">📋 Your Prompt</div>
+        <div class="tab" id="tab-ai" onclick="switchTab('ai')">🤖 AI Response</div>
+      </div>
+
+      <!-- Prompt tab -->
+      <div id="pane-prompt">
+        <div class="prompt-box" id="prompt-output"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-copy" onclick="copyPrompt()">📋 Copy Prompt</button>
+          <button class="btn btn-ghost" onclick="runAI()">🤖 Run with AI →</button>
+          <button class="btn btn-ghost" onclick="goStep(1);clearAll();">↩ Start Over</button>
+        </div>
+        <p class="hint">Tip: Copy this prompt and paste into ChatGPT, Gemini, or any AI chatbot — or click "Run with AI" to get results here instantly.</p>
+      </div>
+
+      <!-- AI tab -->
+      <div id="pane-ai" style="display:none;">
+        <div id="ai-empty" class="empty-state">
+          <div class="big-icon">🤖</div>
+          <p>Click "Run with AI" to execute your prompt and see results here.</p>
+          <button class="btn btn-primary" onclick="runAI()">Run with AI →</button>
+        </div>
+        <div id="ai-loading" style="display:none;text-align:center;padding:2.5rem;">
+          <div class="spinner"></div>
+          <p style="color:var(--text2);font-size:14px;">Generating your marketing content…</p>
+        </div>
+        <div id="ai-error" class="error-box" style="display:none;"></div>
+        <div id="ai-result" class="ai-box" style="display:none;"></div>
+        <div id="ai-actions" style="display:none;" class="btn-row">
+          <button class="btn btn-ghost" onclick="copyAI()">📋 Copy Results</button>
+          <button class="btn btn-ghost" onclick="runAI()">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TASKS = [
+  { id:"seo",      icon:"🔍", label:"SEO Strategy",       desc:"Full SEO content plan" },
+  { id:"keywords", icon:"🗝️", label:"Keyword Research",    desc:"Target keyword clusters" },
+  { id:"caption",  icon:"✍️", label:"Caption Creation",    desc:"Platform-optimized captions" },
+  { id:"hashtags", icon:"#️⃣", label:"Hashtag Strategy",    desc:"Tiered hashtag sets" },
+  { id:"titletag", icon:"🏷️", label:"Title Tag",           desc:"SEO-optimized page titles" },
+  { id:"metadesc", icon:"📄", label:"Meta Description",    desc:"Click-worthy meta copy" },
+  { id:"post",     icon:"📱", label:"Post Copywriting",    desc:"Social media post copy" },
+  { id:"video",    icon:"🎬", label:"Video Script",        desc:"Script & hook writing" },
+];
+const PLATFORMS = ["Instagram","LinkedIn","Twitter/X","Facebook","YouTube","TikTok","Pinterest","Google Ads"];
+const TONES = ["Professional","Conversational","Witty & Playful","Inspirational","Educational","Urgent/CTA-Heavy","Storytelling","Minimalist"];
+
+let selected = [];
+let selPlatforms = [];
+let selTone = "";
+
+// Build task grid
+const tg = document.getElementById("task-grid");
+TASKS.forEach(t => {
+  const d = document.createElement("div");
+  d.className = "task-card";
+  d.id = "tc-" + t.id;
+  d.innerHTML = `<span class="task-icon">${t.icon}</span><div class="task-name">${t.label}</div><div class="task-desc">${t.desc}</div><div class="task-check">✓</div>`;
+  d.onclick = () => toggleTask(t.id);
+  tg.appendChild(d);
+});
+
+// Build platform pills
+const pp = document.getElementById("platforms-pills");
+PLATFORMS.forEach(p => {
+  const el = document.createElement("div");
+  el.className = "pill";
+  el.textContent = p;
+  el.onclick = () => { togglePlatform(p, el); };
+  pp.appendChild(el);
+});
+
+// Build tone pills
+const tp = document.getElementById("tone-pills");
+TONES.forEach(t => {
+  const el = document.createElement("div");
+  el.className = "pill";
+  el.textContent = t;
+  el.onclick = () => {
+    document.querySelectorAll("#tone-pills .pill").forEach(x => x.classList.remove("active"));
+    el.classList.add("active");
+    selTone = t;
+    validateStep2();
+  };
+  tp.appendChild(el);
+});
+
+function toggleTask(id) {
+  const idx = selected.indexOf(id);
+  if (idx > -1) selected.splice(idx, 1);
+  else selected.push(id);
+  document.getElementById("tc-" + id).classList.toggle("selected", selected.includes(id));
+  document.getElementById("sel-count").textContent = selected.length + " task" + (selected.length !== 1 ? "s" : "") + " selected";
+  document.getElementById("btn-step2").disabled = selected.length === 0;
+}
+
+function togglePlatform(p, el) {
+  const idx = selPlatforms.indexOf(p);
+  if (idx > -1) selPlatforms.splice(idx, 1);
+  else selPlatforms.push(p);
+  el.classList.toggle("active", selPlatforms.includes(p));
+  validateStep2();
+}
+
+function selectAll() { TASKS.forEach(t => { if (!selected.includes(t.id)) toggleTask(t.id); }); }
+function clearAll() { [...selected].forEach(id => toggleTask(id)); }
+
+function validateStep2() {
+  const ok = document.getElementById("f-brand").value.trim() &&
+             document.getElementById("f-industry").value &&
+             document.getElementById("f-audience").value.trim() &&
+             document.getElementById("f-goal").value.trim() &&
+             selPlatforms.length > 0 && selTone;
+  document.getElementById("btn-step3").disabled = !ok;
+}
+
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById("page-" + i).classList.toggle("active", i === n);
+    const dot = document.getElementById("dot-" + i);
+    const lbl = document.getElementById("lbl-" + i);
+    dot.classList.remove("active","done");
+    lbl.classList.remove("active");
+    if (i < n) { dot.classList.add("done"); dot.textContent = "✓"; }
+    else if (i === n) { dot.classList.add("active"); dot.textContent = i; lbl.classList.add("active"); }
+    else { dot.textContent = i; }
+  });
+  if (n === 2) {
+    // build chips
+    const cr = document.getElementById("chips-row");
+    cr.innerHTML = selected.map(id => {
+      const t = TASKS.find(x => x.id === id);
+      return `<span class="chip">${t.icon} ${t.label}</span>`;
+    }).join("");
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function getFormData() {
+  return {
+    brand:    document.getElementById("f-brand").value.trim(),
+    industry: document.getElementById("f-industry").value,
+    audience: document.getElementById("f-audience").value.trim(),
+    goal:     document.getElementById("f-goal").value.trim(),
+    platforms: selPlatforms,
+    tone:     selTone,
+  };
+}
+
+const PROMPTS = {
+  seo: d => `${"=".repeat(58)}\n📌 TASK: SEO STRATEGY\n${"=".repeat(58)}\n\nYou are an expert SEO strategist. Create a comprehensive SEO content plan for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPrimary Goal: ${d.goal}\nPlatform Focus: ${d.platforms.join(", ")}\n\nProvide:\n1. SEO Content Strategy Overview — core SEO opportunity and approach\n2. Primary & Secondary Keywords — 5 primary + 10 LSI/secondary keywords with search intent labels\n3. Content Pillars — 4–5 topic clusters aligned with the brand\n4. On-Page SEO Checklist — title tag formula, H1/H2 structure, internal linking, image alt text\n5. Content Calendar — 4-week posting cadence with topics mapped to keywords\n6. Competitive Edge Tips — 3 ways to differentiate in search results\n\nTone: ${d.tone}. Be specific, actionable, and tailored to the ${d.industry} industry.`,
+
+  keywords: d => `${"=".repeat(58)}\n📌 TASK: KEYWORD RESEARCH\n${"=".repeat(58)}\n\nYou are a professional keyword research specialist. Conduct a detailed keyword research analysis for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPlatforms: ${d.platforms.join(", ")}\nBusiness Goal: ${d.goal}\n\nDeliver:\n1. Seed Keywords (5–8) — core terms that define the niche\n2. Long-Tail Keywords (10–15) — low-competition, high-intent phrases\n3. Question-Based Keywords (5–8) — "how to", "what is", "best way to" queries\n4. Negative Keywords to Avoid — irrelevant terms that attract the wrong traffic\n5. Keyword Grouping by Intent: Awareness / Consideration / Decision\n6. Platform-Specific Keyword Tips for: ${d.platforms.join(", ")}\n7. Content Ideas Per Keyword Cluster — 2–3 ideas per group\n\nTone: ${d.tone}. Focus on practical, revenue-driving keywords for ${d.industry}.`,
+
+  caption: d => `${"=".repeat(58)}\n📌 TASK: CAPTION CREATION\n${"=".repeat(58)}\n\nYou are a social media copywriter. Write high-converting captions for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPlatforms: ${d.platforms.join(", ")}\nTone: ${d.tone}\nGoal: ${d.goal}\n\nFor EACH platform write:\n1. Hook Line — stop-the-scroll opener (max 15 words)\n2. Body Copy — 3–5 sentences expanding the hook with value or story\n3. Call to Action — specific, platform-appropriate CTA\n4. Emoji Usage — 3–5 relevant emojis integrated naturally\n\nAlso provide:\n- Caption Length Recommendation per platform\n- Posting Time Recommendation for peak engagement\n- A/B Test Variation — an alternate hook for testing\n\nMake each caption feel native to the platform's culture.`,
+
+  hashtags: d => `${"=".repeat(58)}\n📌 TASK: HASHTAG STRATEGY\n${"=".repeat(58)}\n\nYou are a hashtag strategy expert. Build a complete hashtag strategy for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPlatforms: ${d.platforms.join(", ")}\nGoal: ${d.goal}\n\nFor EACH platform deliver:\n1. Tiered Hashtag Sets:\n   🔴 High Volume (1M+ posts) — 3–4 tags\n   🟡 Mid Volume (100K–1M) — 5–7 tags\n   🟢 Niche (under 100K) — 5–7 targeted tags\n   🔵 Branded Hashtag — 1–2 original tags the brand should own\n2. Hashtag Count Recommendation — optimal number per platform\n3. Placement Strategy — in caption, first comment, or both\n4. Trending Hashtag Opportunities — 3–5 tags to monitor in ${d.industry}\n5. Hashtags to Avoid — banned or shadowbanned tags in this niche\n6. Seasonal/Campaign Hashtag Ideas — 3–5 ideas\n\nTone: ${d.tone}.`,
+
+  titletag: d => `${"=".repeat(58)}\n📌 TASK: TITLE TAG CREATION\n${"=".repeat(58)}\n\nYou are an SEO copywriter specializing in on-page optimization. Create optimized Title Tags for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPrimary Keyword Focus: ${d.goal}\nPage/Platform Context: ${d.platforms.join(", ")}\n\nProvide:\n1. 10 Title Tag Variations using these formulas:\n   - Number + Keyword + Benefit\n   - Keyword + Colon + Promise\n   - Question format\n   - Year + Keyword\n   - How-To format\n   - Power word + Keyword + Outcome\n   - Comparison format (X vs Y)\n   - Problem + Solution\n   - Listicle style\n   - Brand + Keyword combo\n2. Rules applied: each under 60 characters, primary keyword in first 30 chars, no keyword stuffing\n3. Power Words List — 10 high-CTR power words for ${d.industry}\n4. Repeatable Title Tag Formula Template for this brand\n\nTone: ${d.tone}.`,
+
+  metadesc: d => `${"=".repeat(58)}\n📌 TASK: META DESCRIPTION CREATION\n${"=".repeat(58)}\n\nYou are a conversion-focused SEO copywriter. Write compelling Meta Descriptions for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPrimary Keyword: ${d.goal}\nPage Context: ${d.platforms.join(", ")}\n\nDeliver:\n1. 8 Meta Description Variations (120–155 characters each), each:\n   - Including the primary keyword naturally\n   - Containing a clear call-to-action\n   - Communicating a unique value proposition\n   Formulas: Benefit+CTA | Problem→Solution→CTA | Social proof | Question+Answer+CTA | Urgency | Feature highlight | Storytelling hook | Direct statement\n2. Character count label on each variation\n3. CTR Psychology Notes — why each would attract clicks\n4. Rich Snippet Suggestion — recommended schema markup type\n\nTone: ${d.tone}.`,
+
+  post: d => `${"=".repeat(58)}\n📌 TASK: POST COPYWRITING\n${"=".repeat(58)}\n\nYou are a senior social media copywriter. Write scroll-stopping post copy for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPlatforms: ${d.platforms.join(", ")}\nTone: ${d.tone}\nGoal: ${d.goal}\n\nFor EACH platform create a complete post:\n1. Hook — bold opening (1–2 sentences to stop the scroll)\n2. Bridge — connect hook to core message (1–2 sentences)\n3. Value Body — main content: tips, story, insight, or offer (3–5 sentences)\n4. Social Proof Element — stat, testimonial reference, or credibility signal\n5. Call to Action — direct, specific, platform-appropriate CTA\n6. Engagement Trigger — question or prompt to drive comments/shares\n\nAlso include:\n- Content Format Recommendation (carousel, reel, static, thread, etc.)\n- Visual Direction Suggestion — what the image/video should show\n- Best Time to Post per platform`,
+
+  video: d => `${"=".repeat(58)}\n📌 TASK: VIDEO SCRIPT CREATION\n${"=".repeat(58)}\n\nYou are a professional video scriptwriter. Write a complete video script for:\n\nBrand/Topic: ${d.brand}\nIndustry: ${d.industry}\nTarget Audience: ${d.audience}\nPlatforms: ${d.platforms.join(", ")}\nTone: ${d.tone}\nGoal: ${d.goal}\n\nDeliver:\n1. Video Hook (0–3 sec) — 3 hook variations:\n   - Pattern interrupt hook\n   - Bold claim hook\n   - Question hook\n2. Full Script Outline:\n   - Intro (0–15s): Hook + context\n   - Problem/Desire (15–45s): Agitate pain point or desire\n   - Solution/Value (45–90s): Core content\n   - Proof/Trust (90–120s): Evidence or testimonial moment\n   - CTA (last 10–15s): Single clear action\n3. Full Short-Form Script (60–90s) — written word for word\n4. Video Title Ideas — 5 SEO/algorithm-optimized titles for YouTube/TikTok\n5. Description Copy — platform-optimized with keywords and CTA\n6. Thumbnail Text — 3 bold options (under 6 words each)\n7. Content Repurposing Plan — how to turn this video into 5+ pieces of content`,
+};
+
+function buildPrompt() {
+  const d = getFormData();
+  const header = `╔══════════════════════════════════════════════════════╗\n  DIGITAL MARKETING MASTER PROMPT\n  Brand: ${d.brand}\n  Industry: ${d.industry}  |  Tone: ${d.tone}\n  Platforms: ${d.platforms.join(", ")}\n╚══════════════════════════════════════════════════════╝\n\nThis prompt contains ${selected.length} marketing task${selected.length>1?"s":""}.\nExecute each section thoroughly and return results clearly labeled.\n`;
+  return header + "\n" + selected.map(id => PROMPTS[id](d)).join("\n\n");
+}
+
+let generatedPrompt = "";
+
+function generateAndGoStep3() {
+  generatedPrompt = buildPrompt();
+  document.getElementById("prompt-output").textContent = generatedPrompt;
+  // result chips
+  const rc = document.getElementById("result-chips");
+  rc.innerHTML = selected.map(id => {
+    const t = TASKS.find(x => x.id === id);
+    return `<span class="chip">${t.icon} ${t.label}</span>`;
+  }).join("");
+  // reset AI pane
+  document.getElementById("ai-empty").style.display = "block";
+  document.getElementById("ai-loading").style.display = "none";
+  document.getElementById("ai-error").style.display = "none";
+  document.getElementById("ai-result").style.display = "none";
+  document.getElementById("ai-actions").style.display = "none";
+  switchTab("prompt");
+  goStep(3);
+}
+
+function switchTab(t) {
+  document.getElementById("pane-prompt").style.display = t === "prompt" ? "block" : "none";
+  document.getElementById("pane-ai").style.display = t === "ai" ? "block" : "none";
+  document.getElementById("tab-prompt").classList.toggle("active", t === "prompt");
+  document.getElementById("tab-ai").classList.toggle("active", t === "ai");
+}
+
+function copyPrompt() {
+  navigator.clipboard.writeText(generatedPrompt).then(() => {
+    const btn = document.getElementById("btn-copy");
+    btn.textContent = "✓ Copied!";
+    btn.classList.add("btn-success");
+    setTimeout(() => { btn.textContent = "📋 Copy Prompt"; btn.classList.remove("btn-success"); }, 2000);
+  });
+}
+
+function copyAI() {
+  const text = document.getElementById("ai-result").textContent;
+  navigator.clipboard.writeText(text).then(() => alert("AI results copied!"));
+}
+
+async function runAI() {
+  switchTab("ai");
+  document.getElementById("ai-empty").style.display = "none";
+  document.getElementById("ai-loading").style.display = "block";
+  document.getElementById("ai-error").style.display = "none";
+  document.getElementById("ai-result").style.display = "none";
+  document.getElementById("ai-actions").style.display = "none";
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: generatedPrompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content || []).map(b => b.text || "").join("\n").trim();
+    if (!text) throw new Error("Empty response");
+    document.getElementById("ai-result").textContent = text;
+    document.getElementById("ai-result").style.display = "block";
+    document.getElementById("ai-actions").style.display = "flex";
+  } catch(e) {
+    document.getElementById("ai-error").style.display = "block";
+    document.getElementById("ai-error").innerHTML = "⚠️ Could not connect to AI. Copy the prompt and paste it into <a href='https://claude.ai' target='_blank' style='color:#f08080'>claude.ai</a>, ChatGPT, or any AI chatbot.";
+    document.getElementById("ai-empty").style.display = "block";
+  }
+  document.getElementById("ai-loading").style.display = "none";
+}
+</script>
+</body>
+</html>
